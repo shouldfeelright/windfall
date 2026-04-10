@@ -1,0 +1,42 @@
+---
+description: Instagram follower proxy route — logic order, error codes, and secrets handling
+globs: src/routes/api/**
+alwaysApply: false
+---
+
+# API Route: `GET /api/followers`
+
+See @REQUIREMENTS.md Section 5 for the full contract. This rule enforces implementation details.
+
+## Logic Order (Do Not Reorder)
+
+Every request must execute these steps in exactly this sequence:
+
+1. Validate `handle` query param — reject with `400` if empty or contains invalid characters
+2. Check per-IP rate limit via Upstash Redis — reject with `429 RATE_LIMITED` if exceeded
+3. Check Redis cache — if a valid entry exists (TTL < 15 min), return it with `"cached": true` without calling the scraper API
+4. Check circuit breaker — if daily call count ≥ `DAILY_API_LIMIT` env var, return `503 CIRCUIT_BREAKER`
+5. Call the scraper API using `SCRAPER_API_KEY` from `$env/static/private`
+6. Increment the daily call counter in Redis
+7. Write the result to Redis cache with 15-minute TTL
+8. Return `{ followers: number, cached: false }` to the client
+
+## Redis Key Naming
+
+| Purpose | Key format |
+|---|---|
+| Handle cache | `cache:handle:{handle}` |
+| Per-IP rate limit | `ratelimit:ip:{ip}` |
+| Daily call counter | `api:calls:YYYY-MM-DD` |
+
+## Error Responses
+
+Return `{ "error": "ERROR_CODE" }` — never expose raw error messages or stack traces.
+
+Valid codes: `HANDLE_NOT_FOUND`, `PRIVATE_ACCOUNT`, `RATE_LIMITED`, `CIRCUIT_BREAKER`, `UPSTREAM_ERROR`
+
+## Secrets
+
+- `SCRAPER_API_KEY` must only be read inside this server file via `$env/static/private`
+- Never pass API keys to the client — not in response bodies, headers, or cookies
+- If Upstash is unavailable: fail open on caching (skip it), fail closed on rate limiting (block with 503)

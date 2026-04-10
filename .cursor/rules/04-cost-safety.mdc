@@ -1,0 +1,32 @@
+---
+description: Cost protection rules — circuit breaker, rate limiting, and spend caps
+globs:
+alwaysApply: true
+---
+
+# Cost Safety
+
+FollowBet proxies a paid third-party API. These rules protect against runaway costs from viral traffic.
+
+## Non-Negotiable Rules
+
+- The circuit breaker check in `src/lib/utils/circuitBreaker.ts` must execute on **every** request that would reach the scraper API — no exceptions
+- The daily call counter resets at midnight UTC using the key `api:calls:YYYY-MM-DD`
+- `DAILY_API_LIMIT` is set via environment variable — never hardcode a number in the circuit breaker logic
+- Rate limit state and cache state must be stored in Upstash Redis — never in-memory only (in-memory resets on cold start and does not protect across serverless instances)
+
+## Required Environment Variables
+
+These must exist in `.env` locally and as Vercel environment variables in production. Never hardcode values:
+
+```
+SCRAPER_API_KEY=
+DAILY_API_LIMIT=400
+UPSTASH_REDIS_REST_URL=
+UPSTASH_REDIS_REST_TOKEN=
+PUBLIC_POSTHOG_KEY=
+```
+
+## .env.example
+
+`.env.example` must always be kept in sync with the variables above, using empty or placeholder values. It is the only env file committed to git.

@@ -1,0 +1,35 @@
+---
+description: Server/client boundary, state management, and component architecture
+globs: src/routes/**, src/lib/**
+alwaysApply: false
+---
+
+# Architecture
+
+## Server / Client Boundary
+
+- `src/routes/api/followers/+server.ts` is **server-only**
+  - May use `$env/static/private`, Node modules, and Upstash Redis
+  - Must never import Svelte components or browser APIs
+- All files under `src/lib/components/` and `+page.svelte` are **client-side**
+  - Must never reference `process.env` or `$env/static/private`
+  - Use `$env/static/public` for PostHog key only
+
+## State Management
+
+- All game state (current followers, bet percentage, round history, UI phase) lives in `src/lib/stores/game.ts`
+- Components read from the store using Svelte's `$` reactive syntax and dispatch named actions — they do not own state themselves
+- Never duplicate state between a component's local variables and the store
+
+## Outcome Engine
+
+`src/lib/utils/outcomeEngine.ts` must be a **pure function** with:
+- No side effects
+- No DOM or store access
+- Inputs: `currentFollowers: number`, `betPct: number`
+- Output: `SpinOutcome` (see @REQUIREMENTS.md Section 4.3)
+- Fully testable in isolation without mounting any Svelte component
+
+## Shared Types
+
+All TypeScript interfaces and types shared between files live in `src/lib/types.ts`. Do not re-declare types locally when a shared type already exists.

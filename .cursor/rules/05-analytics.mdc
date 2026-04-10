@@ -1,0 +1,30 @@
+---
+description: PostHog analytics — event names, required properties, and privacy rules
+globs: src/**/*.svelte, src/lib/stores/**
+alwaysApply: false
+---
+
+# Analytics (PostHog)
+
+PostHog is initialized once in `+layout.svelte` using `PUBLIC_POSTHOG_KEY`. Do not initialize it anywhere else.
+
+## Required Events
+
+Fire these at exactly the moments described. See @REQUIREMENTS.md Section 6 for the full table.
+
+| Event | Trigger | Required properties |
+|---|---|---|
+| `handle_submitted` | User submits handle form | `{ handle_length: number }` |
+| `followers_loaded` | API returns `200` | `{ cached: boolean, follower_bucket: string }` |
+| `api_error` | API returns any error | `{ error_code: string }` |
+| `spin_initiated` | User clicks spin button | `{ bet_pct: number, followers_before: number }` |
+| `spin_completed` | Reel animation finishes | `{ outcome: string, multiplier: number, followers_after: number }` |
+| `game_over` | Followers reach 0 | `{ total_rounds: number, starting_followers: number }` |
+| `rate_limit_hit` | `429` returned | `{}` |
+| `circuit_breaker_tripped` | `503` returned | `{}` |
+
+## Privacy Rules
+
+- **Never** log a raw Instagram handle as a PostHog property
+- **Never** log an exact follower count — always use buckets: `"0-1K"`, `"1K-10K"`, `"10K-100K"`, `"100K+"`
+- Helper function for bucketing lives in `src/lib/utils/formatFollowers.ts`

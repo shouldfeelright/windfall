@@ -1,0 +1,31 @@
+---
+description: V1 scope boundaries and definition of done
+globs:
+alwaysApply: true
+---
+
+# Scope & Definition of Done
+
+## Out of Scope — V1
+
+Do not implement any of the following. If a prompt requests one, respond:
+> "That feature is out of scope for V1 per REQUIREMENTS.md Section 10. Should I log it as an open question for V2?"
+
+- User accounts or authentication of any kind
+- Persistent leaderboards or score storage
+- Instagram OAuth integration
+- Support for private Instagram accounts
+- Real money, payments, or real account mutations
+- Push notifications or email
+- Native mobile app code
+
+## Definition of Done
+
+A task is complete only when all of the following are true:
+
+- [ ] Behavior matches the relevant section of @REQUIREMENTS.md exactly
+- [ ] TypeScript compiles clean: `npx tsc --noEmit` reports zero errors
+- [ ] UI renders correctly at 375px (mobile) and 1280px (desktop)
+- [ ] All PostHog events from Section 6 fire at the correct moment
+- [ ] No secrets appear in any source file or get logged to the console
+- [ ] `.env.example` reflects any new environment variables added

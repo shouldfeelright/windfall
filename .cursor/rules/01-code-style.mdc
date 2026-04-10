@@ -1,0 +1,37 @@
+---
+description: TypeScript, Svelte, and CSS coding standards
+globs: src/**/*.ts, src/**/*.svelte, src/**/*.css
+alwaysApply: false
+---
+
+# Code Style
+
+## TypeScript
+
+- Strict mode is on — never use `any`
+- Prefer `type` over `interface` unless the type needs to be extended
+- All exported functions must have explicit return types
+- Use `const` by default; `let` only when reassignment is required
+- No `console.log` in production code paths
+
+## Svelte
+
+- One component per file; filename must match the component name (`PascalCase.svelte`)
+- All `export let` props must be explicitly typed — no implicit inference from untyped props
+- Use the Svelte store in `src/lib/stores/game.ts` for shared state; do not pass deeply nested props
+- Prefer `{#if}` over CSS `display: none` for toggling major UI sections
+- Event handlers are named `handle<Action>` (e.g. `handleSpin`, `handleSubmit`)
+
+## CSS
+
+- Every color, spacing, font size, radius, and transition value must reference a CSS custom property from `src/app.css`
+- No inline styles except for dynamic values that cannot be expressed as a variable (e.g. reel transform)
+- No Tailwind utility classes — this project uses custom CSS only
+- Mobile-first: write base styles for 375px viewport, then expand with `@media (min-width: ...)`
+- Minimum touch target size for all interactive elements: 44×44px
+
+## File Naming
+
+- Components: `PascalCase.svelte`
+- Utilities and stores: `camelCase.ts`
+- Route files: SvelteKit conventions (`+page.svelte`, `+server.ts`, `+layout.svelte`)

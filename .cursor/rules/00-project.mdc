@@ -1,0 +1,31 @@
+---
+description: FollowBet project overview and stack reference
+globs:
+alwaysApply: true
+---
+
+# FollowBet — Project Overview
+
+FollowBet is a SvelteKit + TypeScript single-page app where users enter their Instagram handle, the app fetches their real follower count via a server-side proxy, and they gamble it on an animated slot machine.
+
+## Stack
+
+- **Framework:** SvelteKit (full-stack)
+- **Language:** TypeScript, strict mode
+- **Styling:** CSS custom properties only — no Tailwind
+- **Instagram data:** Third-party scraper API, proxied through `src/routes/api/followers/+server.ts`
+- **Cache / rate limiting:** Upstash Redis
+- **Analytics:** PostHog
+- **Hosting:** Vercel (hobby tier)
+
+## Source of Truth
+
+All functional requirements, API contracts, design tokens, analytics events, and out-of-scope items are defined in @REQUIREMENTS.md. Read the relevant section before implementing any feature.
+
+## Key File Locations
+
+- Game state store → `src/lib/stores/game.ts`
+- Outcome logic → `src/lib/utils/outcomeEngine.ts`
+- Instagram proxy → `src/routes/api/followers/+server.ts`
+- Design tokens → `src/app.css`
+- Environment template → `.env.example`

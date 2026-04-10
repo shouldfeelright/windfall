@@ -1,12 +1,12 @@
 ---
-description: FollowBet project overview and stack reference
+description: Windfall project overview and stack reference
 globs:
 alwaysApply: true
 ---
 
-# FollowBet — Project Overview
+# Windfall — Project Overview
 
-FollowBet is a SvelteKit + TypeScript single-page app where users enter their Instagram handle, the app fetches their real follower count via a server-side proxy, and they gamble it on an animated slot machine.
+Windfall is a SvelteKit + TypeScript single-page app where users enter their Instagram handle, the app fetches their real follower count via a server-side proxy, and they gamble it on an animated slot machine.
 
 ## Stack
 

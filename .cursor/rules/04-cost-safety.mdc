@@ -6,7 +6,7 @@ alwaysApply: true
 
 # Cost Safety
 
-FollowBet proxies a paid third-party API. These rules protect against runaway costs from viral traffic.
+Windfall proxies a paid third-party API. These rules protect against runaway costs from viral traffic.
 
 ## Non-Negotiable Rules
 

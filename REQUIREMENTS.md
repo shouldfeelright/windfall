@@ -1,4 +1,4 @@
-# FollowBet — Technical Requirements Document
+# Windfall — Technical Requirements Document
 **Version:** 1.0
 **Status:** Active
 **Last Updated:** April 2026
@@ -8,7 +8,7 @@
 
 ## 1. Product Overview
 
-FollowBet is a single-page web application that lets users gamble their real Instagram follower count on a slot machine UI. The user enters their Instagram handle, the app fetches their actual follower count via a server-side API proxy, and the slot machine simulates winning or losing followers across multiple spins.
+Windfall is a single-page web application that lets users gamble their real Instagram follower count on a slot machine UI. The user enters their Instagram handle, the app fetches their actual follower count via a server-side API proxy, and the slot machine simulates winning or losing followers across multiple spins.
 
 The core experience mirrors a real slot machine: the user never inputs how much they have — the app knows. Stakes feel real because the number is real.
 
@@ -32,7 +32,7 @@ The core experience mirrors a real slot machine: the user never inputs how much 
 ## 3. Repository Structure
 
 ```
-followbet/
+Windfall/
 ├── src/
 │   ├── routes/
 │   │   ├── +layout.svelte         # PostHog init, global styles, font loading
@@ -125,7 +125,7 @@ Every error must show an **inline message** below the handle input — never a r
 |---|---|
 | Handle not found / private account | "We couldn't find that account. Make sure it's public and spelled correctly." |
 | Rate limit hit (per-IP) | "You're moving fast — wait a minute before trying again." |
-| Circuit breaker tripped | "FollowBet is taking a breather from high traffic. Try again in a few hours." |
+| Circuit breaker tripped | "Windfall is taking a breather from high traffic. Try again in a few hours." |
 | Scraper API error / timeout | "Instagram is being tricky right now. Try again in a moment." |
 
 ---

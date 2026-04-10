@@ -17,6 +17,31 @@ const HANDLE_REGEX = /^[a-zA-Z0-9_.]{1,30}$/;
 const RATE_LIMIT_WINDOW = 60;
 const RATE_LIMIT_MAX = 5;
 const CACHE_TTL = 900; // 15 minutes
+const SOCIAVAULT_PROFILE_URL = 'https://api.sociavault.com/v1/scrape/instagram/profile';
+
+type SociaVaultResponse = {
+  success?: boolean;
+  error?: string;
+  message?: string;
+  data?: {
+    success?: boolean;
+    error?: string;
+    message?: string;
+    data?: {
+      user?: {
+        is_private?: boolean;
+        edge_followed_by?: {
+          count?: number;
+        };
+      };
+    };
+  };
+};
+
+function getSociaVaultErrorMessage(data: SociaVaultResponse): string {
+  const parts = [data.message, data.error, data.data?.message, data.data?.error];
+  return parts.find((part): part is string => typeof part === 'string') ?? '';
+}
 
 function todayKey(): string {
   const now = new Date();
@@ -91,30 +116,42 @@ export const GET: RequestHandler = async ({ request, url }) => {
   // 5. Call scraper API
   let followerCount: number;
   try {
-    const response = await fetch(
-      `https://instagram-scraper-api2.p.rapidapi.com/v1/info?username_or_id_or_url=${encodeURIComponent(handle)}`,
-      {
-        headers: {
-          'x-rapidapi-key': SCRAPER_API_KEY,
-          'x-rapidapi-host': 'instagram-scraper-api2.p.rapidapi.com'
-        }
+    const requestUrl = new URL(SOCIAVAULT_PROFILE_URL);
+    requestUrl.searchParams.set('handle', handle);
+    requestUrl.searchParams.set('trim', 'true');
+    const response = await fetch(requestUrl, {
+      headers: {
+        'X-API-Key': SCRAPER_API_KEY,
+        Accept: 'application/json'
       }
-    );
+    });
 
     if (!response.ok) {
-      if (response.status === 404) {
+      if (response.status === 404 || response.status === 422) {
         return json({ error: 'HANDLE_NOT_FOUND' }, { status: 404 });
       }
       return json({ error: 'UPSTREAM_ERROR' }, { status: 502 });
     }
 
-    const data = await response.json();
+    const data = (await response.json()) as SociaVaultResponse;
+    const upstreamErrorMessage = getSociaVaultErrorMessage(data).toLowerCase();
+    const isNotFoundMessage =
+      upstreamErrorMessage.includes('not found') ||
+      upstreamErrorMessage.includes('does not exist') ||
+      upstreamErrorMessage.includes('invalid handle') ||
+      upstreamErrorMessage.includes('invalid username') ||
+      upstreamErrorMessage.includes('username not found');
 
-    if (data?.data?.is_private) {
+    if (isNotFoundMessage) {
+      return json({ error: 'HANDLE_NOT_FOUND' }, { status: 404 });
+    }
+
+    const user = data?.data?.data?.user;
+    if (user?.is_private) {
       return json({ error: 'PRIVATE_ACCOUNT' }, { status: 403 });
     }
 
-    followerCount = data?.data?.follower_count;
+    followerCount = user?.edge_followed_by?.count ?? NaN;
     if (typeof followerCount !== 'number' || isNaN(followerCount)) {
       return json({ error: 'UPSTREAM_ERROR' }, { status: 502 });
     }
